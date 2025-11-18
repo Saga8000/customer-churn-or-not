@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Customer Churn Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .floating-bg {
+            animation: floating-bg 6s ease-in-out infinite;
+        }
+        @keyframes floating-bg {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(1deg); }
+            50% { transform: translateY(-8px) rotate(-1deg); }
+            75% { transform: translateY(-5px) rotate(1deg); }
+        }
+        .input-focus {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        .result-appear {
+            animation: slideInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stats-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Header -->
+    <nav class="gradient-bg shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-line text-white text-2xl mr-3"></i>
+                        <h1 class="text-xl font-bold text-white">Churn Predictor</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <div class="text-white">
+                        <i class="fas fa-user-circle mr-2"></i>
+                        Welcome, <span class="font-semibold">{{ username }}</span>
+                    </div>
+                    <a href="/logout" 
+                       class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition font-medium">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card-hover stats-card bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Predictions</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-2">1,247</p>
+                        <p class="text-green-600 text-sm mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>12% from last month
+                        </p>
+                    </div>
+                    <div class="bg-blue-100 p-3 rounded-full floating-bg">
+                        <i class="fas fa-chart-bar text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-hover stats-card bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Churn Rate</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-2">23.5%</p>
+                        <p class="text-red-600 text-sm mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>3% increase
+                        </p>
+                    </div>
+                    <div class="bg-red-100 p-3 rounded-full floating-bg" style="animation-delay: 1s;">
+                        <i class="fas fa-user-times text-red-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-hover stats-card bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Retention Rate</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-2">76.5%</p>
+                        <p class="text-green-600 text-sm mt-2">
+                            <i class="fas fa-arrow-down mr-1"></i>2% improvement
+                        </p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded-full floating-bg" style="animation-delay: 2s;">
+                        <i class="fas fa-user-check text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-hover stats-card bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Accuracy</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-2">94.2%</p>
+                        <p class="text-green-600 text-sm mt-2">
+                            <i class="fas fa-arrow-up mr-1"></i>1.2% increase
+                        </p>
+                    </div>
+                    <div class="bg-purple-100 p-3 rounded-full floating-bg" style="animation-delay: 3s;">
+                        <i class="fas fa-bullseye text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Prediction Form -->
+            <div class="glass-effect rounded-2xl shadow-2xl p-8">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-brain text-purple-600 text-2xl mr-3"></i>
+                    <h2 class="text-2xl font-bold gradient-text">Churn Prediction</h2>
+                </div>
+
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="mb-4 p-3 rounded-lg text-sm font-medium
+                                {% if category == 'success' %}bg-green-100 text-green-800 border border-green-200
+                                {% elif category == 'danger' %}bg-red-100 text-red-800 border border-red-200
+                                {% elif category == 'warning' %}bg-yellow-100 text-yellow-800 border border-yellow-200
+                                {% else %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% if result %}
+                    <div id="resultCard" class="mb-6 p-6 rounded-xl text-center result-appear
+                        {% if 'Churn ❌' in result %}bg-gradient-to-r from-red-500 to-red-600 text-white
+                        {% else %}bg-gradient-to-r from-green-500 to-green-600 text-white{% endif %}">
+                        <div class="text-3xl mb-2">
+                            {% if 'Churn ❌' in result %}<i class="fas fa-exclamation-triangle"></i>{% else %}<i class="fas fa-check-circle"></i>{% endif %}
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">{{ result }}</h3>
+                        <p class="text-sm opacity-90">
+                            {% if 'Churn ❌' in result %}
+                                Immediate action recommended. Consider retention strategies.
+                            {% else %}
+                                Customer shows stable behavior. Continue monitoring.
+                            {% endif %}
+                        </p>
+                    </div>
+                {% endif %}
+
+                <form action="/predict" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt mr-1 text-purple-500"></i>Tenure (months)
+                            </label>
+                            <input type="number" step="any" name="tenure" required
+                                   class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="e.g., 12">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-dollar-sign mr-1 text-green-500"></i>Monthly Charges
+                            </label>
+                            <input type="number" step="any" name="MonthlyCharges" required
+                                   class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="e.g., 89.99">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-coins mr-1 text-yellow-500"></i>Total Charges
+                            </label>
+                            <input type="number" step="any" name="TotalCharges" required
+                                   class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                   placeholder="e.g., 1079.88">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-file-contract mr-1 text-blue-500"></i>Contract Type
+                            </label>
+                            <select name="Contract_Month-to-month" required
+                                    class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Select contract</option>
+                                <option value="1">Month-to-month</option>
+                                <option value="0">One year / Two year</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-wifi mr-1 text-indigo-500"></i>Internet Service
+                            </label>
+                            <select name="InternetService_Fiber optic" required
+                                    class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Select service</option>
+                                <option value="1">Fiber Optic</option>
+                                <option value="0">DSL / No Internet</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-credit-card mr-1 text-pink-500"></i>Payment Method
+                            </label>
+                            <select name="PaymentMethod_Electronic check" required
+                                    class="input-focus w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <option value="">Select method</option>
+                                <option value="1">Electronic Check</option>
+                                <option value="0">Other Methods</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold py-3 rounded-lg hover:from-purple-700 hover:to-purple-800 transform transition hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                        <i class="fas fa-magic mr-2"></i>
+                        Predict Churn Risk
+                    </button>
+                </form>
+            </div>
+
+            <!-- Analytics & Insights -->
+            <div class="space-y-6">
+                <!-- Chart -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">
+                            <i class="fas fa-chart-line mr-2 text-purple-600"></i>
+                            Churn Trends
+                        </h3>
+                        <select class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                            <option>Last 7 days</option>
+                            <option>Last 30 days</option>
+                            <option>Last 3 months</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="churnChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Risk Factors -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-2 text-orange-500"></i>
+                        Key Risk Factors
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-up text-red-500 mr-3"></i>
+                                <span class="text-sm font-medium">Month-to-month contracts</span>
+                            </div>
+                            <span class="text-sm text-red-600 font-semibold">High Risk</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-up text-orange-500 mr-3"></i>
+                                <span class="text-sm font-medium">Fiber optic internet</span>
+                            </div>
+                            <span class="text-sm text-orange-600 font-semibold">Medium Risk</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-minus text-yellow-500 mr-3"></i>
+                                <span class="text-sm font-medium">Electronic check payment</span>
+                            </div>
+                            <span class="text-sm text-yellow-600 font-semibold">Moderate Risk</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-down text-green-500 mr-3"></i>
+                                <span class="text-sm font-medium">Long-term contracts</span>
+                            </div>
+                            <span class="text-sm text-green-600 font-semibold">Low Risk</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl shadow-lg p-6 text-white">
+                    <h3 class="text-lg font-semibold mb-4">
+                        <i class="fas fa-bolt mr-2"></i>
+                        Quick Actions
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition">
+                            <i class="fas fa-download mb-2"></i>
+                            <p class="text-sm">Export Report</p>
+                        </button>
+                        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition">
+                            <i class="fas fa-users mb-2"></i>
+                            <p class="text-sm">View All Customers</p>
+                        </button>
+                        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition">
+                            <i class="fas fa-cog mb-2"></i>
+                            <p class="text-sm">Settings</p>
+                        </button>
+                        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 p-3 rounded-lg transition">
+                            <i class="fas fa-question-circle mb-2"></i>
+                            <p class="text-sm">Help</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart initialization with better responsiveness
+        const ctx = document.getElementById('churnChart').getContext('2d');
+        const churnChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Churn Predictions',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: 'rgb(147, 51, 234)',
+                    backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(147, 51, 234)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Actual Churn',
+                    data: [10, 15, 13, 20, 18, 25, 22],
+                    borderColor: 'rgb(239, 68, 68)',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(239, 68, 68)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        cornerRadius: 8
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Smooth result card animation on load
+        window.addEventListener('load', function() {
+            const resultCard = document.getElementById('resultCard');
+            if (resultCard) {
+                // Add subtle fade-in effect
+                resultCard.style.opacity = '0';
+                setTimeout(() => {
+                    resultCard.style.transition = 'opacity 0.5s ease-in';
+                    resultCard.style.opacity = '1';
+                }, 100);
+            }
+        });
+
+        // Add subtle input focus effects
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('floating-bg');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('floating-bg');
+            });
+        });
+    </script>
+</body>
+</html>

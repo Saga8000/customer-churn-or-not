@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Churn Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-center mb-6">Customer Churn Prediction</h2>
+
+        {% if result %}
+            <div class="p-4 mb-4 text-center text-white {{ 'bg-red-500' if 'Churn ❌' in result else 'bg-green-500' }} rounded-xl">
+                <strong>{{ result }}</strong>
+            </div>
+        {% endif %}
+
+        <form action="/predict" method="POST" class="grid grid-cols-1 gap-4">
+
+            <input class="p-3 border rounded" type="number" step="any" name="tenure" placeholder="Tenure (months)" required>
+            <input class="p-3 border rounded" type="number" step="any" name="MonthlyCharges" placeholder="Monthly Charges" required>
+            <input class="p-3 border rounded" type="number" step="any" name="TotalCharges" placeholder="Total Charges" required>
+
+            <select name="Contract_Month-to-month" class="p-3 border rounded">
+                <option value="1">Month-to-month</option>
+                <option value="0">Other</option>
+            </select>
+
+            <select name="InternetService_Fiber optic" class="p-3 border rounded">
+                <option value="1">Fiber Optic</option>
+                <option value="0">Other</option>
+            </select>
+
+            <select name="PaymentMethod_Electronic check" class="p-3 border rounded">
+                <option value="1">Electronic Check</option>
+                <option value="0">Other</option>
+            </select>
+
+            <button class="bg-blue-600 text-white p-3 rounded-xl mt-4 hover:bg-blue-700">
+                Predict Churn
+            </button>
+        </form>
+    </div>
+</body>
+</html>
